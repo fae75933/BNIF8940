@@ -20,4 +20,4 @@ fi
 module load BLAST+/2.9.0-gompi-2019b
 
 
-blastn -num_threads 4 -query $DATADIR/sample.fasta -db /db/ncbiblast/nt/06042020/nt -out $OUTDIR/sample.fa.blastn.${SLURM_JOB_ID}.tsv -outfmt 6 -max_target_seqs=2
+blastn -num_threads 5 -query $DATADIR/sample.fasta -db /db/ncbiblast/nt/06042020/nt -out $OUTDIR/sample.fa.blastn.${SLURM_JOB_ID}.tsv -outfmt 6 -max_target_seqs=2
