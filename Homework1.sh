@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=testBLAST1
+#SBATCH --job-name=homework1
 #SBATCH --partition=batch
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
@@ -10,7 +10,6 @@
 #SBATCH --mail-type=END,FAIL
 
 OUTDIR="/work/gene8940/fae75933/"
-DATADIR="/work/gene8940/instructor_data"
-
-curl -s ftp://ftp.ensemblgenomes.org/pub/bacteria/release-37/gff3/bacteria_0_collection/escherichia_coli_str_k_12_substr_mg1655/Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.37.gff3.gz | gunzip -c > ecoli_MG1655.gff
+cd $OUTDIR
+curl -s ftp://ftp.ensemblgenomes.org/pub/bacteria/release-37/gff3/bacteria_0_collection/escherichia_coli_str_k_12_substr_mg1655/Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.37.gff3.gz | gunzip -c > $OUTDIR/ecoli_MG1655.gff
 grep -c "CDS" ecoli_MG1655
