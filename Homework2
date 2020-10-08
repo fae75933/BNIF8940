@@ -17,21 +17,35 @@ then
     mkdir -p $OUTDIR
 fi
 
-curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2| gunzip -c > $OUTDIR/ecoli_MG1655.gff
+
+# Download the E. coli MG1655 RefSeq Genome sequence and GFF annotation. Unzip the fille
+curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.gff.gz | gunzip -c > $OUTDIR/GCF_000005845.gff
+curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz  | gunzip -c > $OUTDIR/ecoli_MG1655.fna
+
+#install bedops, bedtools, samtools, and ucsc modules
 module load BEDOPS/2.4.39-foss-2019b
 module load BEDTools/2.29.2-GCC-8.3.0
 module load SAMtools/1.10-GCC-8.3.0
 module load ucsc/359
-curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.gff.gz | gunzip -c > $OUTDIR/GCF_000005845.gff
-curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.gff.gz | gunzip -c >  $OUTDIR/GCF_000005845.fna
-convert2bed --input=gff < GCF_000005845.gff > $OUTDIR/GCF_000005845.bed
-grep -c "CDS" GCF_000005845.bed > $OUTDIR/GCF_000005845_CDS.bed
-grep -c "non-CDS" GCF_000005845.bed > $OUTDIR/GCF_000005845_non-CDS.bed
 
+#Converts the GFF file to BED format (using convert2bed)
+convert2bed --input=gff < $OUTDIR/GCF_000005845.gff > $OUTDIR/GCF_000005845.bed
+
+#Filters the BED file to create a new BED file with only CDS regions (using grep)
+grep -c CDS $OUTDIR/GCF_000005845.bed > $OUTDIR/GCF_000005845_CDS.bed
+
+#Create a "genome" index file for BEDtools (using samtools faidx)
 samtools faidx $OUTDIR/GCF_000005845.fna
-cut -f1,2 GCF_000005845.fna.fai > $OUTDIR/GCF_000005845.genome.txt
-bedtools complement -i GCF_000005845_CDS.bed -g GCF_000005845.genome.txt > $OUTDIR/GCF_000005845_intergenic.bed
-bedtools complement -i GCF_000005845_non-CDS.bed -g GCF_000005845.genome.txt > $OUTDIR/GCF_000005845_intergenic.bed
+cut -f1,2 $OUTDIR/GCF_000005845.fna.fai > $OUTDIR/GCF_000005845.genome.txt
 
-faCount -summary GCF_000005845_CDS.bed
-faCount -summary GCF_000005845_non-CDS.bed
+# Use the CDS region BED file to create a complementary set of BED intervals for non-CDS regions (using bedtools complement)
+bedtools complement -i $OUTDIR/GCF_000005845_CDS.bed -g $OUTDIR/GCF_000005845.genome.txt > $OUTDIR/GCF_000005845_nonCDS.bed
+
+# Generates two files of fasta sequences for all CDS and all non-CDS regions respectively (using bedtools getfasta)
+bedtools getfasta -fi $OUTDIR/GCF_000005845.fna -bed $OUTDIR/GCF_000005845_CDS.bed > $OUTDIR/GCF_000005845_CDS.fna
+faCount -summary $OUTDIR/ GCF_000005845_CDS.bed > $OUTDIR/homework2CDS.text
+
+bedtools getfasta -fi $OUTDIR/GCF_000005845.fna -bed $OUTDIR/GCF_000005845_nonCDS.bed > $OUTDIR/GCF_000005845_nonCDS.fna
+faCount -summary $OUTDIR/ GCF_000005845_CDS.bed > $OUTDIR/homework2nonCDS.text
+
+# Compute the GC composition of CDS and non-CDS intergenic regions (using faCount -summary)
