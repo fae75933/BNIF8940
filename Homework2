@@ -9,8 +9,8 @@
 #SBATCH --mail-user=fae75933@uga.edu
 #SBATCH --mail-type=END,FAIL
 
-OUTDIR="/work/gene8940/fae75933/hw.sh"
-DATADIR="/work/gene8940/hw.sh"
+OUTDIR="/work/BNIF8940/fae75933/hw2.sh"
+DATADIR="/work/BNIF8940/hw2.sh"
 
 if [ ! -d $OUTDIR ]
 then
@@ -21,6 +21,7 @@ fi
 # Download the E. coli MG1655 RefSeq Genome sequence and GFF annotation. Unzip the fille
 curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.gff.gz | gunzip -c > $OUTDIR/GCF_000005845.gff
 curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz  | gunzip -c > $OUTDIR/ecoli_MG1655.fna
+
 
 #install bedops, bedtools, samtools, and ucsc modules
 module load BEDOPS/2.4.39-foss-2019b
