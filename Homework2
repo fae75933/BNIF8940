@@ -29,7 +29,7 @@ module load SAMtools/1.10-GCC-8.3.0
 module load ucsc/359
 
 #Converts the GFF file to BED format (using convert2bed)
-convert2bed --input=gff < $OUTDIR/GCF_000005845.gff > $OUTDIR/GCF_000005845.bed
+convert2bed --input= gff < $OUTDIR/GCF_000005845.gff > $OUTDIR/GCF_000005845.bed
 
 #Filters the BED file to create a new BED file with only CDS regions (using grep)
 grep -c CDS $OUTDIR/GCF_000005845.bed > $OUTDIR/GCF_000005845_CDS.bed
@@ -43,9 +43,9 @@ bedtools complement -i $OUTDIR/GCF_000005845_CDS.bed -g $OUTDIR/GCF_000005845.ge
 
 # Generates two files of fasta sequences for all CDS and all non-CDS regions respectively (using bedtools getfasta)
 bedtools getfasta -fi $OUTDIR/GCF_000005845.fna -bed $OUTDIR/GCF_000005845_CDS.bed > $OUTDIR/GCF_000005845_CDS.fna
-faCount -summary $OUTDIR/ GCF_000005845_CDS.bed > $OUTDIR/homework2CDS.text
+faCount -summary $OUTDIR/GCF_000005845_CDS.fna > $OUTDIR/homework2CDS.text
 
 bedtools getfasta -fi $OUTDIR/GCF_000005845.fna -bed $OUTDIR/GCF_000005845_nonCDS.bed > $OUTDIR/GCF_000005845_nonCDS.fna
-faCount -summary $OUTDIR/ GCF_000005845_CDS.bed > $OUTDIR/homework2nonCDS.text
+faCount -summary $OUTDIR/GCF_000005845_nonCDS.fna > $OUTDIR/homework2nonCDS.text
 
 # Compute the GC composition of CDS and non-CDS intergenic regions (using faCount -summary)
