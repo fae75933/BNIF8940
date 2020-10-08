@@ -1,0 +1,37 @@
+#!/bin/bash
+#SBATCH --job-name=homework2
+#SBATCH --partition=batch
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=10gb
+#SBATCH --time=2:00:00
+#SBATCH --output=/work/gene8940/fae75933/log.%j
+#SBATCH --mail-user=fae75933@uga.edu
+#SBATCH --mail-type=END,FAIL
+
+OUTDIR="/work/gene8940/fae75933/hw.sh"
+DATADIR="/work/gene8940/hw.sh"
+
+if [ ! -d $OUTDIR ]
+then
+    mkdir -p $OUTDIR
+fi
+
+curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2| gunzip -c > $OUTDIR/ecoli_MG1655.gff
+module load BEDOPS/2.4.39-foss-2019b
+module load BEDTools/2.29.2-GCC-8.3.0
+module load SAMtools/1.10-GCC-8.3.0
+module load ucsc/359
+curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.gff.gz | gunzip -c > $OUTDIR/GCF_000005845.gff
+curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.gff.gz | gunzip -c >  $OUTDIR/GCF_000005845.fna
+convert2bed --input=gff < GCF_000005845.gff > $OUTDIR/GCF_000005845.bed
+grep -c "CDS" GCF_000005845.bed > $OUTDIR/GCF_000005845_CDS.bed
+grep -c "non-CDS" GCF_000005845.bed > $OUTDIR/GCF_000005845_non-CDS.bed
+
+samtools faidx $OUTDIR/GCF_000005845.fna
+cut -f1,2 GCF_000005845.fna.fai > $OUTDIR/GCF_000005845.genome.txt
+bedtools complement -i GCF_000005845_CDS.bed -g GCF_000005845.genome.txt > $OUTDIR/GCF_000005845_intergenic.bed
+bedtools complement -i GCF_000005845_non-CDS.bed -g GCF_000005845.genome.txt > $OUTDIR/GCF_000005845_intergenic.bed
+
+faCount -summary GCF_000005845_CDS.bed
+faCount -summary GCF_000005845_non-CDS.bed
