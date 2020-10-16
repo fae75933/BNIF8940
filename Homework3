@@ -1,0 +1,46 @@
+#!/bin/bash
+#SBATCH --job-name=homework3
+#SBATCH --partition=batch
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=24gb
+#SBATCH --time=24:00:00
+#SBATCH --output=/work/BNIF8940/fae75933/log.%j
+#SBATCH --mail-user=fae75933@uga.edu
+#SBATCH --mail-type=END,FAIL
+
+OUTDIR="/work/gene8940/fae75933/homework3"
+Threads=6
+MEMORY=24
+
+
+
+# Download and gunzip the E. coli MG1655 RefSeq genome sequence
+wget -O $OUTDIR/GCF_000005845.2_ASM584v2_genomic.fna.gz ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845
+gunzip $OUTDIR/GCF_000005845.2_ASM584v2_genomic.fna.gz
+
+# Download E. coli MG1655 PacBio long reads (keep in .gz format to save space)
+wget -O $OUTDIR/ecoli_p6_25x.filtered.fastq.gz http://bergmanlab.genetics.uga.edu/data/downloads/gene8940/ecoli_p6_25x.filtered.fastq.gz
+
+# Download E. coli MG1655 Illumina paired-end short reads (keep in .gz format to save space)
+wget -O $OUTDIR/s_6_1.fastq.gz http://bergmanlab.genetics.uga.edu/data/downloads/gene8940/s_6_1.fastq.gz
+wget -O $OUTDIR/s_6_2.fastq.gz http://bergmanlab.genetics.uga.edu/data/downloads/gene8940/s_6_2.fastq.gz
+
+# Assemble the E. coli MG1655 genome using PacBio long reads and Canu (canu/1.9-GCCcore-8.3.0-Java-11) as follows
+ml canu/1.9-GCCcore-8.3.0-Java-11
+canu -p ecoli -d $OUTDIR/canu genomeSize=4.8m useGrid=false -pacbio-raw $OUTDIR/ecoli_p6_25x.filtered.fastq.gz
+
+# Assemble the E. coli MG1655 genome using Illumina short reads and SPAdes (SPAdes/3.14.1-GCC-8.3.0-Python-3.7.4) as follows
+ml SPAdes/3.14.1-GCC-8.3.0-Python-3.7.4
+spades.py -t $Threads -k 21,33,55,77 --isolate --memory $MEMORY --pe1-1 $OUTDIR/s_6_1.fastq.gz --pe1-2 $OUTDIR/s_6_2.fastq.gz -o $OUTDIR
+
+#Run QUAST (QUAST/5.0.2-foss-2019b-Python-3.7.4) to generate assembly quality assessment statistics (number of contigs, N50 and L50) for the PacBio/Canu and Illumina/Spades assemblies using the RefSeq assembly as a reference
+ml QUAST/5.0.2-foss-2019b-Python-3.7.4
+quast.py -o $OUTDIR/quast -t $Threads $OUTDIR/canu/ecoli.contigs.fasta $OUTDIR/spades/scaffolds.fasta
+
+# Generate mummerplots (MUMmer/3.23_conda) for the PacBio/Canu and Illumina/SPAdes assemblies versus the E. coli MG1655 RefSeq reference genome sequenc
+ml MUMmer/3.23_conda
+mkdir $OUTDIR/mummer/
+nucmer $OUTDIR/GCF_000005845.2_ASM584v2_genomic.fna $OUTDIR/canu/ecoli.contigs.fasta -p $OUTDIR/mummer/canu
+delta-filter -1 $OUTDIR/mummer/canu.delta > $OUTDIR/mummer/canu.1delta
+mummerplot --size large -layout --color -f --png $OUTDIR/mummer/canu.1delta -p $OUTDIR/mummer/canu
