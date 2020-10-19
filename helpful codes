@@ -1,0 +1,1 @@
+srun --pty  -p interactive --mem=24G --nodes=1 --ntasks-per-node=10 --time=08:00:00 --job-name=qlogin /bin/bash
