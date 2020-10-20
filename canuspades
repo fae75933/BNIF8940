@@ -39,4 +39,4 @@ canu -p ecoli -d $OUTDIR/canu genomeSize=4.8m useGrid=false -pacbio-raw $OUTDIR/
 
 # Assemble the E. coli MG1655 genome using Illumina short reads and SPAdes (SPAdes/3.14.1-GCC-8.3.0-Python-3.7.4) as follows
 ml SPAdes/3.14.1-GCC-8.3.0-Python-3.7.4
-spades.py -t $Threads -k 21,33,55,77 --isolate --memory $MEMORY --pe1-1 $OUTDIR/s_6_1.fastq.gz --pe1-2 $OUTDIR/s_6_2.fastq.gz -o $OUTDIR
+spades.py -t $Threads -k 21,33,55,77 --isolate --memory $MEMORY --pe1-1 $OUTDIR/s_6_1.fastq.gz --pe1-2 $OUTDIR/s_6_2.fastq.gz -o $OUTDIR/Spades
