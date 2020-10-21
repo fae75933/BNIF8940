@@ -1,1 +1,38 @@
 srun --pty  -p interactive --mem=24G --nodes=1 --ntasks-per-node=10 --time=08:00:00 --job-name=qlogin /bin/bash
+
+ml canu/1.9-GCCcore-8.3.0-Java-11
+canu -p ecoli -d $OUTDIR/ecoli-pacbio genomeSize=4.8m useGrid=false -pacbio-raw $OUTDIR/ecoli_p6_25x.filtered.fastq.gz
+canu -p ecoli -d $OUTDIR/canu genomeSize=4.8m useGrid=false -pacbio-raw $OUTDIR/ecoli_p6_25x.filtered.fastq.gz
+
+
+quast.py -o $OUTDIR/quast -t $Threads $OUTDIR/canu/ecoli.contigs.fasta $OUTDIR/scaffolds.fasta
+
+
+OUTDIR="/work/gene8940/fae75933/homework3"
+
+if [ ! -d $OUTDIR ]
+then
+    mkdir -p $OUTDIR
+fi
+cd $OUTDIR
+
+wget -O $OUTDIR/GCF_000005845.2_ASM584v2_genomic.fna.gz ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz
+gunzip $OUTDIR/GCF_000005845.2_ASM584v2_genomic.fna.gz
+
+Threads=6
+MEMORY=24
+ml MUMmer/3.23_conda
+mkdir $OUTDIR/mummer/
+nucmer $OUTDIR/ecoli_MG1655.fna $OUTDIR/Spades/contigs.fasta -p $OUTDIR/mummer/spades
+delta-filter -1 $OUTDIR/mummer/canu.delta > $OUTDIR/mummer/spades.1delta
+mummerplot --size large -layout --color -f --png $OUTDIR/mummer/spades.1delta -p $OUTDIR/mummer/spades
+
+ml MUMmer/3.23_conda
+mkdir $OUTDIR/mummer/
+nucmer $OUTDIR/ecoli_MG1655.fna $OUTDIR/canu/ecoli.contigs.fasta -p $OUTDIR/mummer/canu
+delta-filter -1 $OUTDIR/mummer/canu.delta > $OUTDIR/mummer/canu.1delta
+mummerplot --size large -layout --color -f --png $OUTDIR/mummer/canu.1delta -p $OUTDIR/mummer/canu
+
+scp teach:/work/gene8940/fae75933/homework3/mummer/*png /c/Users/Owner
+scp canu.png  fae75933@txfer.gacrc.uga.edu:subdirectory
+scp teach:/work/gene8940/cbergman/homework3/mummer/*png /c/users/cbergman/
