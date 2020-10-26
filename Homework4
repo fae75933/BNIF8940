@@ -1,0 +1,62 @@
+#!/bin/bash
+#SBATCH --job-name=homework4
+#SBATCH --partition=batch
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=6
+#SBATCH --mem=24gb
+#SBATCH --time=24:00:00
+#SBATCH --output=/work/gene8940/fae75933/log.%j
+#SBATCH --mail-user=fae75933@uga.edu
+#SBATCH --mail-type=END,FAIL
+
+OUTDIR="/work/gene8940/fae75933/homework4"
+
+if [ ! -d $OUTDIR ]
+then
+    mkdir -p $OUTDIR
+fi
+cd $OUTDIR
+
+Threads=6
+MEMORY=24
+
+# Download and extract paired-end Illumina reads from NCBI for the E coli strain C600 (SRR8082143) using the SRA Toolkit (SRA-Toolkit/2.9.6-1-centos_linux64)
+ml SRA-Toolkit/2.9.6-1-centos_linux64
+prefetch -O /$OUTDIR/mapping SRR8082143
+fastq-dump --split-files --gzip -N 10001 -X 20000 /work/gene8940/fae75933/homework4/mapping/SRR8082143.sra -O /work/gene8940/fae75933/homework4/mapping
+
+
+# Download the E. coli MG1655 refseq reference genome using curl or wget (ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2)
+curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz  | gunzip -c > $OUTDIR/GCF_000005845.fna
+
+# Construct a BWA index for the E. coli MG1655 refseq reference genome (BWA/0.7.17-GCC-8.3.0)
+ml BWA/0.7.17-GCC-8.3.0
+bwa index GCF_000005845.fna
+#Map the E. coli C600 reads to the E. coli MG1655 refseq reference genome using `bwa mem` and store the mapped reads in sorted .bam format (BWA/0.7.17-GCC-8.3.0 and SAMtools/1.10-GCC-8.3.0)
+ml BWA/0.7.17-GCC-8.3.0
+ml SAMtools/1.10-GCC-8.3.0
+bwa mem -t 6 GCF_000005845.fna SRR8082143_1.fastq.gz SRR8082143_2.fastq.gz > SRR8082143.sam
+samtools view SRR8082143.sam -O BAM -o SRR8082143.bam
+
+#Generate an index for your sorted .bam file using `samtools index`
+ml SAMtools/1.10-GCC-8.3.0
+samtools sort --threads 6 SRR8082143.bam -o SRR8082143.sorted.bam
+samtools index SRR8082143.sorted.bam
+
+# Call variants with a (i) quality score of greater than 40, (ii) supported by more than 10 reads, (iii) with mapping quality greater than 60 for the the E. coli C600 genome using `bcftools mpileup`, `bcftools call`, and `bcftools filter` (BCFtools/1.10.2-GCC-8.3.0): https://samtools.github.io/bcftools/howtos/variant-calling.html
+# Generate an IGV readable index file for your *vcf.gz file using `bcftools index` (BCFtools/1.10.2-GCC-8.3.0)
+ml BCFtools/1.10.2-GCC-8.3.0
+# call genotype likelihoods with mpileup
+bcftools mpileup -Oz --threads 6 --min-MQ 60 -f GCF_000005845.fna SRR8082143.sorted.bam > SRR8082143.sorted.mpileup.vcf.gz
+# call variants
+bcftools call -Oz -mv --threads 6 --ploidy 1 SRR8082143.sorted.mpileup.vcf.gz > SRR8082143.mpileup.call.vcf.gz
+# filter variants
+bcftools filter -Oz -e 'QUAL<40 || DP<10' SRR8082143.mpileup.call.vcf.gz > SRR8082143.mpileup.call.filter.vcf.gz
+#index gzipped vcf file for fast random access
+bcftools index SRR8082143.mpileup.call.filter.vcf.gz
+# generate consensus sequence
+bcftools consensus -f GCF_000005845.fna SRR8082143.mpileup.call.filter.vcf.gz > SRR8082143.consensus.fa
+#SCP filles
+scp teach:/work/gene8940/fae75933/homework4/mapping /c/Users/Owner
+scp -r mapping fae75933@xfer.gacrc.uga.edu:
+scp teach:/work/gene8940/fae75933/homework4/mapping/* /c/Users/Owner
