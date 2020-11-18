@@ -20,10 +20,27 @@ cd $OUTDIR
 Threads=6
 MEMORY=24
 
-wget -O $OUTDIR/GCF_000182925.2_NC12_genomic.fna.gz ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/182/925/GCF_000182925.1_ASM18292v1/GCF_000182925 | gunzip -c > $OUTDIR/GCF_000182925.fna
+# Use to login into sapelo
+ssh fae75933@sap2test.gacrc.uga.edu
 
+#Change into my directory
+cd /scratch/fae75933
+
+#Create a project directory
+mkdir finalproject
+
+#Copy CUT&RUN data from Zack's directory into mine
+cp -R /scratch/zlewis/Felicia   ./
+
+#Create a genome folder
+/c/Users/Owner/genomefolder/neurospora/GenbankAssembly12
+
+#Download the N. crassa genome from Genbank (genome accession # GCA_000182925.2 )
+curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/182/925/GCA_000182925.2_NC12/GCA_000182925.2_NC12_genomic.fna.gz | gunzip -c > GCA_000182925.2_NC12_genomic.fna.gz
+
+#Use bwa index to create an indexed genome
 ml BWA/0.7.17-GCC-8.3.0
-bwa index GCF_000182925.fna
+bwa index GCA_000182925.2_NC12_genomic.fna.gz
 
 ml BWA/0.7.17-GCC-8.3.0
 ml SAMtools/1.10-GCC-8.3.0

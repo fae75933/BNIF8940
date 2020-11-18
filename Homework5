@@ -1,0 +1,41 @@
+#!/bin/bash
+#SBATCH --job-name=homework5
+#SBATCH --partition=batch
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=6
+#SBATCH --mem=24gb
+#SBATCH --time=24:00:00
+#SBATCH --output=/work/gene8940/fae75933/log.%j
+#SBATCH --mail-user=fae75933@uga.edu
+#SBATCH --mail-type=END,FAIL
+
+OUTDIR="/work/gene8940/fae75933/homework5"
+
+if [ ! -d $OUTDIR ]
+then
+    mkdir -p $OUTDIR
+fi
+cd $OUTDIR
+
+Threads=6
+MEMORY=24
+
+# Download and extract paired-end Illumina reads from NCBI for the E coli strain C600 (SRR8082143) using the SRA Toolkit (SRA-Toolkit/2.9.6-1-centos_linux64)
+ml SRA-Toolkit/2.9.6-1-centos_linux64
+prefetch -O /$OUTDIR/mapping SRR5344681
+fastq-dump --split-files --gzip -N 10001 -X 20000 /work/gene8940/fae75933/homework5/mapping/SRR5344681.sra -O /work/gene8940/fae75933/homework5/mapping
+prefetch -O /$OUTDIR/mapping SRR5344682
+fastq-dump --split-files --gzip -N 10001 -X 20000 /work/gene8940/fae75933/homework5/mapping/SRR5344682.sra -O /work/gene8940/fae75933/homework5/mapping
+prefetch -O /$OUTDIR/mapping SRR5344683
+fastq-dump --split-files --gzip -N 10001 -X 20000 /work/gene8940/fae75933/homework5/mapping/SRR5344683.sra -O /work/gene8940/fae75933/homework5/mapping
+prefetch -O /$OUTDIR/mapping SRR5344684
+fastq-dump --split-files --gzip -N 10001 -X 20000 /work/gene8940/fae75933/homework5/mapping/SRR5344684.sra -O /work/gene8940/fae75933/homework5/mapping
+
+# Download the E. coli MG1655 refseq reference genome using curl or wget (ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2)
+curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz  | gunzip -c > $OUTDIR/GCF_000005845.fna
+
+# Make a kallisto index for the E. coli MG1655 refseq CDS fasta file (kallisto/0.46.1-foss-2019b).
+ml kallisto/0.46.1-foss-2019b
+kallisto index -i ecoli_transcripts.idx GCF_000005845.fna
+
+# Runs kallisto quant on all 4 samples (kallisto/0.46.1-foss-2019b)

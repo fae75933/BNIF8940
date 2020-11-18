@@ -27,8 +27,8 @@ fastq-dump --split-files --gzip -N 10001 -X 20000 /work/gene8940/fae75933/homewo
 
 
 # Download the E. coli MG1655 refseq reference genome using curl or wget (ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2)
-curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz  | gunzip -c > $OUTDIR/GCF_000005845.fna
-
+curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz | gunzip -c > /c/Users/Owner/genomefolder/neurospora/GenbankAssembly12/GCF_000005845.fna
+curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/182/925/GCA_000182925.2_NC12/GCA_000182925.2_NC12_genomic.fna.gz | gunzip -c > GCA_000182925.2_NC12_genomic.fna.gz
 # Construct a BWA index for the E. coli MG1655 refseq reference genome (BWA/0.7.17-GCC-8.3.0)
 ml BWA/0.7.17-GCC-8.3.0
 bwa index GCF_000005845.fna
