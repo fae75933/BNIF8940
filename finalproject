@@ -42,8 +42,16 @@ curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/182/925/GCA_000182925.2_N
 ml BWA/0.7.17-GCC-8.3.0
 bwa index GCA_000182925.2_NC12_genomic.fna.gz
 
-ml BWA/0.7.17-GCC-8.3.0
-ml SAMtools/1.10-GCC-8.3.0
+#Download control ChIP-seq use the SRA toolkit "fast-dump" command
+ml SRA-Toolkit/2.9.6-1-centos_linux64
+#Download H3K4me2
+prefetch -O /scratch/fae75933/finalproject/mapping SRR12229307
+fastq-dump -I --split-files SRR12229307
 
-bwa mem -t 6 GCF_000182925.fna SRR000182925_1.fastq.gz SRR000182925_2.fastq.gz > SRR000182925.sam
-samtools view SRR000182925.sam -O BAM -o SRR000182925.bam
+#Download H3K27me/3
+prefetch -O /scratch/fae75933/finalproject/mapping SRR11266616
+fastq-dump -I --split-files SRR11266616
+
+#Download input
+prefetch -O /scratch/fae75933/finalproject/mapping SRR12229313
+fastq-dump -I --split-files SRR12229313
