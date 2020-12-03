@@ -26,7 +26,6 @@ MEMORY=24
 curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.gff.gz | gunzip -c > $OUTDIR/GCF_000005845.gff
 curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz  | gunzip -c > $OUTDIR/ecoli_MG1655.fna
 
-
 # Download E. coli MG1655 PacBio long reads (keep in .gz format to save space)
 wget -O $OUTDIR/ecoli_p6_25x.filtered.fastq.gz http://bergmanlab.genetics.uga.edu/data/downloads/gene8940/ecoli_p6_25x.filtered.fastq.gz
 

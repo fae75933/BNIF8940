@@ -1,0 +1,84 @@
+#!/bin/bash
+#PBS -q batch
+#PBS -l nodes=1:ppn=24:AMD
+#PBS -M user@uga.edu
+#PBS -l walltime=4:00:00
+#PBS -m ae
+
+# Iterate over fastq files in a directory
+# Step2 - map fastq files to N. crassa genome, output aligned reads in bam format, then sorted and indexed bam files
+#Step 3 - create a bigwig file for viewing in a genome browser and for downstream analysis;
+
+#User input needed!!! Add path to directory containing the fastq files. Include a wild card symbol at end so the script will analyze all files
+
+
+#Directory to iterate over with a * at the end
+ FILES=/scratch/fae75933/finalproject/Felicia/chipseq* #Don't forget the *
+
+##manually create a directory to store output and then put the path to that output directory here for writing
+
+OUTDIR="/scratch/fae75933/finalproject"
+
+##make output directories that you need. These should be modified to match the software in your specific pipeline
+
+mkdir "$OUTDIR/SortedBamFiles"
+mkdir "$OUTDIR/Bigwigs"
+mkdir "$OUTDIR/MACSout"
+
+
+#Iterate over the files in the fastq folder and perform desired analysis steps
+for f in $FILES
+do
+
+        #Skip files that do not match the R1.fastq.gz file name. If you are using paired end reads, this will be a regular expression that matches only the read 1 file. Make sure your formatting matched the formating of the file name.
+        # if you want to have two . characters, you need to use an escape character "\"because the "." is a regex character
+        if [[ $f != *R1\.fastq ]]
+
+        then
+                continue
+        fi
+
+##define the variable $file to extract just the filename from each input file. Note that the variable $f will contain the entire path. Here you will extract the name of the file from the path and use this to name files that descend from this original input file.
+
+file=${f##*/}
+        #Examples to Get Different parts of the file name
+        #See here for details: http://tldp.org/LDP/abs/html/refcards.html#AEN22664
+        #if you need to extract the directory but not the file, use the syntax below for variable dir
+        #dir=${f%/*}    #
+
+
+#create file name variables to use in the downstream analysis
+
+#use sed to get the second read matching the input file
+read2=$(echo "$f" | sed 's/R1.fastq.gz/R2.fastq.gz/g') #this is a variable that stores the name of the read 2 file for matching paired-end fastq files. !!!!!!if this doesn't work it is probably because the end of the fastq file name has a different format. Make sure it matches.
+
+#filename variable for the sorted bam file
+sorted="$OUTDIR/SortedBamFiles/$file"
+
+#filename variable for the deeptools big wig output
+bigwig="$OUTDIR/Bigwigs/$file.bw"
+
+
+#############    Map Reads and convert to sorted bam files #########################
+#http://bio-bwa.sourceforge.net/bwa.shtml
+#http://www.htslib.org/doc/1.2/samtools.html
+
+####load modules just before use, because these modules load all dependencies
+ml BWA/0.7.17-GCC-8.3.0
+ml SAMtools/1.9-foss-2016b
+
+##map reads and convert to sorted bam file. This is a bwa command, then output is piped to "samtools view", them this output is piped to "samtools sort"
+bwa mem -M -v 3 -t 12 -v 0 /home/zlewis/Genomes/Neurospora/Nc12_RefSeq/GCA_000182925.2_NC12_genomic $f | samtools view -bhu - | samtools sort -T $file -o "$sorted.bam" -O bam -
+
+samtools index "$sorted.bam"
+
+
+################################## Make Bigwig using deeptools () ###################
+#using the sorted bam output, make a bigwig file
+#https://deeptools.readthedocs.io/en/develop/
+
+module load deepTools/3.3.1-intel-2019b-Python-3.7.4
+#create bw
+bamCoverage -p 12 -bs 1 --smoothLength 25 -of bigwig -b "$sorted.bam" -o "$bigwig"
+#######For CutandRun data, you need to analyze the bam using the --MNase option. This
+#bamCoverage -p 12 --MNase -bs 1 --smoothLength 25 -of bigwig -b "$sorted.bam" -o "$bigwig"
