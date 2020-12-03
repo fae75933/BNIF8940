@@ -59,3 +59,5 @@ fastq-dump -I --split-files SRR12229313
 mv SRR* /scratch/fae75933/finalproject/Felicia/chipseq
 #Code to view job queue
 ls -l /scratch/fae75933
+#cd into BNIF8940 directory to submit scrpt into cluster
+sbatch
