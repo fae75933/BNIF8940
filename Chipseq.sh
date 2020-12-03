@@ -33,7 +33,7 @@ mkdir "$OUTDIR/MACSout"
 module load deepTools/3.3.1-intel-2019b-Python-3.7.4
 ml BWA/0.7.17-GCC-8.3.0
 # ml SAMtools/1.9-foss-2016b
-ml SAMtools/1.10-GCC-8.3.0
+ml SAMtools/1.9-GCC-8.3.0
 #Iterate over the files in the fastq folder and perform desired analysis steps
 for f in $FILES
 do
