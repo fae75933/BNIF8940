@@ -19,7 +19,7 @@ THREADS=6
 
 
 #Directory to iterate over with a * at the end
- FILES="/scratch/fae75933/finalproject/Felicia/FASTQ/*" #Don't forget the *
+ FILES="/scratch/fae75933/finalproject/Felicia/FASTQ/*.fastq.gz" #Don't forget the *
 
 ##manually create a directory to store output and then put the path to that output directory here for writing
 
