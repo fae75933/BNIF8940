@@ -83,3 +83,4 @@ done
 
 #######For CutandRun data, you need to analyze the bam using the --MNase option. This
 #bamCoverage -p 12 --MNase -bs 1 --smoothLength 25 -of bigwig -b "$sorted.bam" -o "$bigwig"
+#yes
