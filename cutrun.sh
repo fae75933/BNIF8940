@@ -8,6 +8,7 @@
 #SBATCH --output=/scratch/fae75933/log.%j
 #SBATCH --mail-user=fae75933@uga.edu
 #SBATCH --mail-type=END,FAIL
+#SBATCH --error=.%j.log.err
 
 # Iterate over fastq files in a directory
 # Step2 - map fastq files to N. crassa genome, output aligned reads in bam format, then sorted and indexed bam files
@@ -67,7 +68,7 @@ bigwig="$OUTDIR/Bigwigs/$file.bw"
 
 
 ##map reads and convert to sorted bam file. This is a bwa command, then output is piped to "samtools view", them this output is piped to "samtools sort"
-bwa mem -M -v 3 -t $THREADS /scratch/fae75933/genomesfolder/GCA_000182925_neurospora.fna $f $read2 | samtools view -bhu - | samtools sort -@ $THREADS -T $file -o "$sorted.bam" -O bam -
+bwa mem -M -v 3 -t $THREADS /scratch/fae75933/genomesfolder/GCA_000182925_neurospora.fna $f $read2 | samtools view -bhu - | samtools sort -T $file -o "$sorted.bam" -O bam -
 
 samtools index "$sorted.bam"
 

@@ -8,7 +8,7 @@
 #SBATCH --output=/scratch/fae75933/log.%j
 #SBATCH --mail-user=fae75933@uga.edu
 #SBATCH --mail-type=END,FAIL
-
+#SBATCH --error=.%j.log.err
 # Iterate over fastq files in a directory
 # Step2 - map fastq files to N. crassa genome, output aligned reads in bam format, then sorted and indexed bam files
 #Step 3 - create a bigwig file for viewing in a genome browser and for downstream analysis;
