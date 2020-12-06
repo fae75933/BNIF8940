@@ -73,11 +73,6 @@ bwa mem -M -v 3 -t $THREADS /scratch/fae75933/genomesfolder/GCA_000182925_neuros
 samtools index "$sorted.bam"
 
 
-################################## Make Bigwig using deeptools () ###################
-#using the sorted bam output, make a bigwig file
-#https://deeptools.readthedocs.io/en/develop/
-
-
 #create bw
 bamCoverage -p $THREADS -bs 1 --smoothLength 25 -of bigwig -b "${sorted}.bam" -o "$bigwig"
 #######For CutandRun data, you need to analyze the bam using the --MNase option. This

@@ -14,10 +14,11 @@
 #Step 3 - create a bigwig file for viewing in a genome browser and for downstream analysis;
 
 #User input needed!!! Add path to directory containing the fastq files. Include a wild card symbol at end so the script will analyze all files
+THREADS=6
 
 
 #Directory to iterate over with a * at the end
- FILES=/scratch/fae75933/finalproject/Felicia/FASTQ/* #Don't forget the *
+ FILES="/scratch/fae75933/finalproject/Felicia/FASTQ/*" #Don't forget the *
 
 ##manually create a directory to store output and then put the path to that output directory here for writing
 
@@ -29,18 +30,15 @@ mkdir "$OUTDIR/SortedBamFiles"
 mkdir "$OUTDIR/Bigwigs"
 mkdir "$OUTDIR/MACSout"
 
+module load deepTools/3.3.1-intel-2019b-Python-3.7.4
+ml BWA/0.7.17-GCC-8.3.0
+# ml SAMtools/1.9-foss-2016b
+ml SAMtools/1.9-GCC-8.3.0
 
 #Iterate over the files in the fastq folder and perform desired analysis steps
 for f in $FILES
 do
 
-        #Skip files that do not match the R1.fastq.gz file name. If you are using paired end reads, this will be a regular expression that matches only the read 1 file. Make sure your formatting matched the formating of the file name.
-        # if you want to have two . characters, you need to use an escape character "\"because the "." is a regex character
-        if [[ $f != *R1\.fastq\.gz ]]
-
-        then
-                continue
-        fi
 
 ##define the variable $file to extract just the filename from each input file. Note that the variable $f will contain the entire path. Here you will extract the name of the file from the path and use this to name files that descend from this original input file.
 
@@ -67,12 +65,10 @@ bigwig="$OUTDIR/Bigwigs/$file.bw"
 #http://bio-bwa.sourceforge.net/bwa.shtml
 #http://www.htslib.org/doc/1.2/samtools.html
 
-####load modules just before use, because these modules load all dependencies
-ml BWA/0.7.17-GCC-8.3.0
-ml SAMtools/1.9-foss-2016b
 
 ##map reads and convert to sorted bam file. This is a bwa command, then output is piped to "samtools view", them this output is piped to "samtools sort"
-bwa mem -M -v 3 -t 12 -v 0 /home/zlewis/Genomes/Neurospora/Nc12_RefSeq/GCA_000182925.2_NC12_genomic $f $read2 | samtools view -bhu - | samtools sort -T $file -o "$sorted.bam" -O bam -
+bwa mem -M -v 3 -t 12 $THREADS /scratch/fae75933/genomesfolder/GCA_000182925_neurospora.fna $f $read2 | samtools view -bhu - | samtools sort -@ $THREADS -T $file -o
+ "$sorted.bam" -O bam -
 
 samtools index "$sorted.bam"
 
@@ -81,9 +77,9 @@ samtools index "$sorted.bam"
 #using the sorted bam output, make a bigwig file
 #https://deeptools.readthedocs.io/en/develop/
 
-module load deepTools/3.3.1-intel-2019b-Python-3.7.4
 #create bw
-bamCoverage -p 12 --MNase -bs 1 --smoothLength 25 -of bigwig -b "$sorted.bam" -o "$bigwig"
+bamCoverage -p $THREADS --MNase -bs 1 --smoothLength 25 -of bigwig -b "$sorted.bam" -o "$bigwig"
+done
 
 #######For CutandRun data, you need to analyze the bam using the --MNase option. This
 #bamCoverage -p 12 --MNase -bs 1 --smoothLength 25 -of bigwig -b "$sorted.bam" -o "$bigwig"
