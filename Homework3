@@ -64,3 +64,5 @@ mummerplot --size large -layout --color -f --png $OUTDIR/mummer/spades.1delta -p
 
 # extract png from cluster into local drive
 scp teach:/work/gene8940/fae75933/homework3/mummer/*png /c/Users/Owner
+scp teach:/scratch/fae75933/finalproject/Bigwigs/*fastq.gz.bw /c/Users/Owner
+scp teach:/scratch/fae75933/finalproject/Bigwigs /c/Users/Owner

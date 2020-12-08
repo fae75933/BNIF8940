@@ -57,3 +57,10 @@ mummerplot --size large -layout --color -f --png $OUTDIR/mummer/canu.1delta -p $
 scp teach:/work/gene8940/fae75933/homework3/mummer/*png /c/Users/Owner
 scp canu.png  fae75933@txfer.gacrc.uga.edu:subdirectory
 scp teach:/work/gene8940/cbergman/homework3/mummer/*png /c/users/cbergman/
+#Code to move files from one spot to another
+mv SRR* /scratch/fae75933/finalproject/Felicia/chipseq
+cp SRR* /home/fae75933/BNIF8940
+#Code to view job queue
+ls -l /scratch/fae75933
+#cd into BNIF8940 directory to submit scrpt into cluster
+sbatch

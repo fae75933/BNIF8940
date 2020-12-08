@@ -54,10 +54,3 @@ fastq-dump -I --split-files SRR11266616
 #Download input
 prefetch -O /scratch/fae75933/finalproject/mapping SRR12229313
 fastq-dump -I --split-files SRR12229313
-
-#Code to move files from one spot to another
-mv SRR* /scratch/fae75933/finalproject/Felicia/chipseq
-#Code to view job queue
-ls -l /scratch/fae75933
-#cd into BNIF8940 directory to submit scrpt into cluster
-sbatch
