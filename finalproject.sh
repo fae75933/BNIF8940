@@ -34,8 +34,8 @@ cp -R /scratch/zlewis/Felicia   ./
 
 #Download the N. crassa genome from Genbank (genome accession # GCA_000182925.2 )
 curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/182/925/GCF_000182925.2_NC12/GCF_000182925.2_NC12_genomic.fna.gz | gunzip -c > GCA_000182925_neurospora.fna
-curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/182/925/GCA_000182925.2_NC12/GCA_000182925.2_NC12_genomic.gff.gz | gunzip -c > GCA_000182925A_neurospora.fna
-curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/182/925/GCA_000182925.2_NC12/GCA_000182925.2_NC12_genomic.gtf.gz | gunzip -c > GCA_000182925A2_neurospora.fna
+curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/182/925/GCA_000182925.2_NC12/GCA_000182925.2_NC12_genomic.gff.gz | gunzip -c > GCA_000182925A_neurospora.gff
+curl -s ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/182/925/GCA_000182925.2_NC12/GCA_000182925.2_NC12_genomic.gtf.gz | gunzip -c > GCA_000182925A2_neurospora.gz
 #Use bwa index to create an indexed genome
 ml BWA/0.7.17-GCC-8.3.0
 bwa index GCA_000182925_neurospora.fna # if this does not work, try adding complete path

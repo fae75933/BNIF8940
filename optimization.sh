@@ -1,30 +1,31 @@
 #!/bin/bash
-#SBATCH --job-name=CutandRun
+#SBATCH --job-name=optimization
 #SBATCH --partition=batch
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=24gb
 #SBATCH --time=24:00:00
-#SBATCH --output=/scratch/fae75933/log.%j
+#SBATCH --output=/work/gene8940/fae75933/log.%j
 #SBATCH --mail-user=fae75933@uga.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --error=.%j.log.err
 
-# Iterate over fastq files in a directory
-# Step2 - map fastq files to N. crassa genome, output aligned reads in bam format, then sorted and indexed bam files
-#Step 3 - create a bigwig file for viewing in a genome browser and for downstream analysis;
+#path to files: cd /scratch/zlewis/Run119/FastQs/Ncrassa
 
-#User input needed!!! Add path to directory containing the fastq files. Include a wild card symbol at end so the script will analyze all files
-THREADS=6
 
-#Directory to iterate over with a * at the end
- FILES="/scratch/fae75933/optimization/Ncrassa/FastQ/R1/*fastq.gz" #Don't forget the *
+OUTDIR="/work/gene8940/fae75933/optimization"
 
-##manually create a directory to store output and then put the path to that output directory here for writing
+if [ ! -d $OUTDIR ]
+then
+    mkdir -p $OUTDIR
+fi
+cd $OUTDIR
 
-OUTDIR="/scratch/fae75933/optimization"
+Threads=6
+MEMORY=24
 
-##make output directories that you need. These should be modified to match the software in your specific pipeline
+FILES="/scratch/zlewis/Run119/FastQs/Ncrassa/*R1_001.fastq.gz" #Don't forget the *
+
+OUTDIR="/scratch/fae75933/CUT&RUN"
 
 mkdir "$OUTDIR/SortedBamFiles"
 mkdir "$OUTDIR/Bigwigs"
@@ -43,15 +44,7 @@ do
 ##define the variable $file to extract just the filename from each input file. Note that the variable $f will contain the entire path. Here you will extract the name of the file from the path and use this to name files that descend from this original input file.
 
 file=${f##*/}
-        #Examples to Get Different parts of the file name
-        #See here for details: http://tldp.org/LDP/abs/html/refcards.html#AEN22664
-        #if you need to extract the directory but not the file, use the syntax below for variable dir
-        #dir=${f%/*}    #
 
-
-#create file name variables to use in the downstream analysis
-
-#use sed to get the second read matching the input file
 read2=$(echo "$f" | sed 's/R1.fastq.gz/R2.fastq.gz/g') #this is a variable that stores the name of the read 2 file for matching paired-end fastq files. !!!!!!if this doesn't work it is probably because the end of the fastq file name has a different format. Make sure it matches.
 
 #filename variable for the sorted bam file
@@ -60,13 +53,6 @@ sorted="$OUTDIR/SortedBamFiles/$file"
 #filename variable for the deeptools big wig output
 bigwig="$OUTDIR/Bigwigs/$file.bw"
 
-
-#############    Map Reads and convert to sorted bam files #########################
-#http://bio-bwa.sourceforge.net/bwa.shtml
-#http://www.htslib.org/doc/1.2/samtools.html
-
-
-##map reads and convert to sorted bam file. This is a bwa command, then output is piped to "samtools view", them this output is piped to "samtools sort"
 bwa mem -M -v 3 -t $THREADS /scratch/fae75933/genomesfolder/GCA_000182925_neurospora.fna $f $read2 | samtools view -bhu - | samtools sort -T $file -o "$sorted.bam" -O bam -
 
 samtools index "$sorted.bam"
