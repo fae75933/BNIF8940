@@ -60,7 +60,7 @@ sorted="$OUTDIR/SortedBamFiles/$file"
 #filename variable for the deeptools big wig output
 bigwig="$OUTDIR/Bigwigs/$file.bw"
 
-
+#
 #############    Map Reads and convert to sorted bam files #########################
 #http://bio-bwa.sourceforge.net/bwa.shtml
 #http://www.htslib.org/doc/1.2/samtools.html
