@@ -10,16 +10,13 @@
 #SBATCH --mail-type=END,FAIL
 #SBATCH --error=.%j.log.err
 
-# Iterate over fastq files in a directory
-# Step2 - map fastq files to N. crassa genome, output aligned reads in bam format, then sorted and indexed bam files
-#Step 3 - create a bigwig file for viewing in a genome browser and for downstream analysis;
 
 #User input needed!!! Add path to directory containing the fastq files. Include a wild card symbol at end so the script will analyze all files
 THREADS=6
 
 #Directory to iterate over with a * at the end
- FILES="/scratch/fae75933/optimization/Ncrassa/FastQ/R1/*fastq.gz" #Don't forget the *
 
+ FILES="/scratch/fae75933/optimization/Ncrassa/*R1_001\.fastq\.gz"
 ##manually create a directory to store output and then put the path to that output directory here for writing
 
 OUTDIR="/scratch/fae75933/optimization"
@@ -60,7 +57,7 @@ sorted="$OUTDIR/SortedBamFiles/$file"
 #filename variable for the deeptools big wig output
 bigwig="$OUTDIR/Bigwigs/$file.bw"
 
-#
+
 #############    Map Reads and convert to sorted bam files #########################
 #http://bio-bwa.sourceforge.net/bwa.shtml
 #http://www.htslib.org/doc/1.2/samtools.html
