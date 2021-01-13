@@ -28,6 +28,7 @@ cd /scratch/fae75933
 
 #Copy CUT&RUN data from Zack's directory into mine
 cp -R /scratch/zlewis/Felicia   ./
+cp -R /scratch/fae75933/optimization/Bigwigs   ./
 
 #Create a genome folder
 /c/Users/Owner/genomefolder/neurospora/GenbankAssembly12

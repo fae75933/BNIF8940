@@ -49,7 +49,9 @@ file=${f##*/}
 #create file name variables to use in the downstream analysis
 
 #use sed to get the second read matching the input file
-read2=$(echo "$f" | sed 's/R1.fastq.gz/R2.fastq.gz/g') #this is a variable that stores the name of the read 2 file for matching paired-end fastq files. !!!!!!if this doesn't work it is probably because the end of the fastq file name has a different format. Make sure it matches.
+ #this is a variable that stores the name of the read 2 file for matching paired-end fastq files. !!!!!!if this doesn't work it is probably because the end of the fastq file name has a different format. Make sure it matches.
+read2=$(echo "$f" | sed 's/R1_001.fastq.gz/R2_001.fastq.gz/g')
+
 
 #filename variable for the sorted bam file
 sorted="$OUTDIR/SortedBamFiles/$file"
