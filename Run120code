@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH --job-name=Run120
+#SBATCH --job-name=Run120code
 #SBATCH --partition=batch
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=24gb
 #SBATCH --time=24:00:00
-#SBATCH --output=/home/fae75933/log.%j
+#SBATCH --output=/scratch/fae75933/log.%j
 #SBATCH --mail-user=fae75933@uga.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --error=.%j.log.err
@@ -16,11 +16,11 @@ THREADS=6
 
 #Directory to iterate over with a * at the end
 
- FILES="/home/fae75933/BNIF8940/Run120/Felicia/*R1_001\.fastq\.gz"
+ FILES="/scratch/fae75933/Run120/Felicia/*R1_001\.fastq\.gz"
 
 ##manually create a directory to store output and then put the path to that output directory here for writing
 
-OUTDIR="/home/fae75933/BNIF8940/Run120"
+OUTDIR="/scratch/fae75933/Run120"
 
 ##make output directories that you need. These should be modified to match the software in your specific pipeline
 
@@ -67,7 +67,7 @@ bigwig="$OUTDIR/Bigwigs/$file.bw"
 
 
 ##map reads and convert to sorted bam file. This is a bwa command, then output is piped to "samtools view", them this output is piped to "samtools sort"
-bwa mem -M -v 3 -t $THREADS /home/fae75933/BNIF8940/Run120/GCA_000182925.2_NC12_genomic.fna $f $read2 | samtools view -bhu - | samtools sort -T $file -o "$sorted.bam" -O bam -
+bwa mem -M -v 3 -t $THREADS /scratch/fae75933/newgenome/GCA_000182925.2_NC12_genomic.fna $f $read2 | samtools view -bhu - | samtools sort -T $file -o "$sorted.bam" -O bam -
 
 samtools index "$sorted.bam"
 
