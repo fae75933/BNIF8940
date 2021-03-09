@@ -66,7 +66,7 @@ bigwig="$OUTDIR/Bigwigs/$file.bw"
 
 
 ##map reads and convert to sorted bam file. This is a bwa command, then output is piped to "samtools view", them this output is piped to "samtools sort"
-bwa mem -M -v 3 -t $THREADS /scratch/fae75933/genomesfolde/GCA_000182925_neurospora.fna $f $read2 | samtools view -bhu - | samtools sort -T $file -o "$sorted.bam" -O bam -
+bwa mem -M -v 3 -t $THREADS /scratch/fae75933/genomesfolder/GCA_000182925_neurospora.fna $f $read2 | samtools view -bhu - | samtools sort -T $file -o "$sorted.bam" -O bam -
 
 samtools index "$sorted.bam"
 
